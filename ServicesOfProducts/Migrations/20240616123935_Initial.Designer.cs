@@ -11,7 +11,7 @@ using ServicesOfProducts.DataContext;
 namespace ServicesOfProducts.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240613192803_Initial")]
+    [Migration("20240616123935_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -41,6 +41,12 @@ namespace ServicesOfProducts.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("DateOrder")
+                        .HasColumnType("TEXT");
+
+                    b.Property<uint>("Number")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Guid");
 
                     b.ToTable("Orders");
@@ -52,10 +58,16 @@ namespace ServicesOfProducts.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("CategoryGuid")
+                    b.Property<Guid?>("CategoryGuid")
                         .HasColumnType("TEXT");
 
                     b.Property<uint>("Cost")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<uint>("Count")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Enable")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
@@ -78,9 +90,6 @@ namespace ServicesOfProducts.Migrations
                     b.Property<uint>("Cost")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("TEXT");
-
                     b.Property<Guid>("OrderGuid")
                         .HasColumnType("TEXT");
 
@@ -100,9 +109,7 @@ namespace ServicesOfProducts.Migrations
                 {
                     b.HasOne("ServicesOfProducts.Models.Category", "Category")
                         .WithMany()
-                        .HasForeignKey("CategoryGuid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoryGuid");
 
                     b.Navigation("Category");
                 });
@@ -110,7 +117,7 @@ namespace ServicesOfProducts.Migrations
             modelBuilder.Entity("ServicesOfProducts.Models.Transaction", b =>
                 {
                     b.HasOne("ServicesOfProducts.Models.Order", "Order")
-                        .WithMany("Transactions")
+                        .WithMany()
                         .HasForeignKey("OrderGuid")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -124,11 +131,6 @@ namespace ServicesOfProducts.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ServicesOfProducts.Models.Order", b =>
-                {
-                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }
