@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ServicesOfProducts.Controllers.ControllersSource;
 using ServicesOfProducts.DataContext;
 using ServicesOfProducts.Models;
 using ServicesOfProducts.Services;
@@ -16,29 +17,39 @@ public class CategoryController(ApplicationDbContext dbContext) : ControllerBase
     public async Task<ActionResult<IEnumerable<Category>>> GetAll() => 
         Ok(await _categoryService.GetAll());
 
-    private async Task<ActionResult<Category>> BaseActionGet(Func<Task<Category?>> func, string errorMessage)
-    {
-        var category = await func();
-
-        if (category == null) throw new Exception(errorMessage);
-
-        return Ok(category);
-    }
+    [HttpGet("{name}/subsidiary")]
+    public async Task<ActionResult<IEnumerable<Category>>> GetSubsidiary(string name) =>
+        Ok(await _categoryService.GetSubsidiary(name));
 
     [HttpGet("{name}")]
     public async Task<ActionResult<Category>> Get(string name) => 
-        await BaseActionGet(() => _categoryService.Get(name), 
+        await this.BaseActionGet(() => _categoryService.Get(name), 
+            $"There is no category with name '{name}'!");
+    
+    [HttpGet("{name}/products")]
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts(string name) => 
+        await this.BaseActionGet(() => _categoryService.GetProducts(name)!, 
             $"There is no category with name '{name}'!");
 
     [HttpPost("{name}")]
     public async Task<ActionResult<Category>> Add(string name) =>
-        await BaseActionGet(() => _categoryService.Add(name),
+        await this.BaseActionGet(() => _categoryService.Add(name, null),
+            $"The new category with name '{name}' could not be created!");
+    
+    [HttpPost("{parentName}/{name}")]
+    public async Task<ActionResult<Category>> AddWithParent(string parentName, string name) =>
+        await this.BaseActionGet(() => _categoryService.Add(name, parentName),
             $"The new category with name '{name}' could not be created!");
 
     [HttpPatch("{oldName}")]
     public async Task<ActionResult<Category>> UpdateName(string oldName, string newName) =>
-        await BaseActionGet(() => _categoryService.UpdateName(oldName, newName),
+        await this.BaseActionGet(() => _categoryService.UpdateName(oldName, newName),
             $"The category with name '{oldName}' to new name '{newName}' could not be updated!");
+
+    [HttpPatch("{parentName}/{name}")]
+    public async Task<ActionResult<Category>> UpdateParent(string parentName, string name) =>
+        await this.BaseActionGet(() => _categoryService.UpdateParent(name, parentName),
+            $"The category with name '{name}' to new parent with name {parentName} could not be updated!");
 
     [HttpDelete("{name}")]
     public async Task<IActionResult> Delete(string name)

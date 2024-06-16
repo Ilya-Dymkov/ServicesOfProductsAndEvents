@@ -11,7 +11,7 @@ using ServicesOfProducts.DataContext;
 namespace ServicesOfProducts.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240616123935_Initial")]
+    [Migration("20240616221753_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -30,7 +30,12 @@ namespace ServicesOfProducts.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ParentCategoryGuid")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Guid");
+
+                    b.HasIndex("ParentCategoryGuid");
 
                     b.ToTable("Categories");
                 });
@@ -44,10 +49,18 @@ namespace ServicesOfProducts.Migrations
                     b.Property<DateTime>("DateOrder")
                         .HasColumnType("TEXT");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<uint>("Number")
                         .HasColumnType("INTEGER");
 
+                    b.Property<Guid>("UserGuid")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Guid");
+
+                    b.HasIndex("UserGuid");
 
                     b.ToTable("Orders");
                 });
@@ -61,18 +74,18 @@ namespace ServicesOfProducts.Migrations
                     b.Property<Guid?>("CategoryGuid")
                         .HasColumnType("TEXT");
 
-                    b.Property<uint>("Cost")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<uint>("Count")
-                        .HasColumnType("INTEGER");
-
                     b.Property<bool>("Enable")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<uint>("Price")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<uint>("Quantity")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Guid");
 
@@ -87,14 +100,17 @@ namespace ServicesOfProducts.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<uint>("Cost")
-                        .HasColumnType("INTEGER");
-
                     b.Property<Guid>("OrderGuid")
                         .HasColumnType("TEXT");
 
+                    b.Property<uint>("Price")
+                        .HasColumnType("INTEGER");
+
                     b.Property<Guid>("ProductGuid")
                         .HasColumnType("TEXT");
+
+                    b.Property<uint>("Quantity")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Guid");
 
@@ -103,6 +119,58 @@ namespace ServicesOfProducts.Migrations
                     b.HasIndex("ProductGuid");
 
                     b.ToTable("Transactions");
+                });
+
+            modelBuilder.Entity("ServicesOfProducts.Models.User", b =>
+                {
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("Birthday")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Guid");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ServicesOfProducts.Models.Category", b =>
+                {
+                    b.HasOne("ServicesOfProducts.Models.Category", "ParentCategory")
+                        .WithMany()
+                        .HasForeignKey("ParentCategoryGuid");
+
+                    b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("ServicesOfProducts.Models.Order", b =>
+                {
+                    b.HasOne("ServicesOfProducts.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserGuid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ServicesOfProducts.Models.Product", b =>

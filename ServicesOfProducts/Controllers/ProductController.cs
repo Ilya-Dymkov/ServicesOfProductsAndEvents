@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ServicesOfProducts.Controllers.ControllersSource;
 using ServicesOfProducts.DataContext;
 using ServicesOfProducts.Models;
 using ServicesOfProducts.Services;
@@ -16,35 +17,31 @@ public class ProductController(ApplicationDbContext dbContext) : ControllerBase
     public async Task<ActionResult<IEnumerable<Product>>> GetAll() => 
         Ok(await _productService.GetAll());
 
-    private async Task<ActionResult<Product>> BaseActionGet(Func<Task<Product?>> func, string errorMessage)
-    {
-        var product = await func();
-
-        if (product == null) throw new Exception(errorMessage);
-
-        return Ok(product);
-    }
-
     [HttpGet("{name}")]
     public async Task<ActionResult<Product>> Get(string name) => 
-        await BaseActionGet(() => _productService.Get(name), 
+        await this.BaseActionGet(() => _productService.Get(name), 
+            $"There is no product with name '{name}'!");
+    
+    [HttpGet("{name}/transactions")]
+    public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions(string name) => 
+        await this.BaseActionGet(() => _productService.GetTransactions(name)!, 
             $"There is no product with name '{name}'!");
 
     [HttpPost("{name}")]
     public async Task<ActionResult<Product>> Add(string name, string categoryName,
-        uint cost, uint count, bool enable) =>
-        await BaseActionGet(() => _productService.Add(name, categoryName, cost, count, enable),
+        uint price, uint quantity, bool enable) =>
+        await this.BaseActionGet(() => _productService.Add(name, categoryName, price, quantity, enable),
             $"The new product with name '{name}' could not be created!");
 
     [HttpPatch("{oldName}")]
     public async Task<ActionResult<Product>> UpdateName(string oldName, string newName) =>
-        await BaseActionGet(() => _productService.UpdateName(oldName, newName),
+        await this.BaseActionGet(() => _productService.UpdateName(oldName, newName),
             $"The product with name '{oldName}' to new name '{newName}' could not be updated!");
 
     [HttpPatch("{name}/data")]
     public async Task<ActionResult<Product>> UpdateData(string name, string categoryName,
         uint cost, uint count, bool enable) =>
-        await BaseActionGet(() => _productService.UpdateData(name, categoryName, cost, count, enable),
+        await this.BaseActionGet(() => _productService.UpdateData(name, categoryName, cost, count, enable),
             $"The data of product with name '{name}' could not be updated!");
 
     [HttpDelete("{name}")]
