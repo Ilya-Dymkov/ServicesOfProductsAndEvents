@@ -20,7 +20,7 @@ public class Product
     [JsonIgnore]
     public Guid Guid { get; set; }
     public string Name { get; set; }
-    public Category? Category { get; set; }
+    public virtual Category? Category { get; set; }
     public uint Price { get; set; }
     public uint Quantity { get; set; }
     public bool Enable { get; set; }

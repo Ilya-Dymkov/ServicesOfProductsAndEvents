@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ServicesOfProducts.Controllers.ControllersSource;
 using ServicesOfProducts.DataContext;
 using ServicesOfProducts.Models;
-using ServicesOfProducts.Services;
+using ServicesOfProducts.Proxies;
 using ServicesOfProducts.Services.ServicesSource;
 
 namespace ServicesOfProducts.Controllers;
@@ -11,7 +11,7 @@ namespace ServicesOfProducts.Controllers;
 [ApiController]
 public class TransactionController(ApplicationDbContext dbContext) : ControllerBase
 {
-    private readonly ITransactionService _transactionService = new TransactionService(dbContext);
+    private readonly ITransactionService _transactionService = new TransactionServiceProxy(dbContext);
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Transaction>>> GetAll() => 

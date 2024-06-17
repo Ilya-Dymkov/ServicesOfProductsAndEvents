@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using ServicesOfProducts.Controllers.ControllersSource;
 using ServicesOfProducts.DataContext;
 using ServicesOfProducts.Models;
-using ServicesOfProducts.Services;
+using ServicesOfProducts.Proxies;
 using ServicesOfProducts.Services.ServicesSource;
 
 namespace ServicesOfProducts.Controllers;
@@ -11,7 +11,7 @@ namespace ServicesOfProducts.Controllers;
 [ApiController]
 public class ProductController(ApplicationDbContext dbContext) : ControllerBase
 {
-    private readonly IProductService _productService = new ProductService(dbContext);
+    private readonly IProductService _productService = new ProductServiceProxy(dbContext);
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Product>>> GetAll() => 
@@ -40,8 +40,8 @@ public class ProductController(ApplicationDbContext dbContext) : ControllerBase
 
     [HttpPatch("{name}/data")]
     public async Task<ActionResult<Product>> UpdateData(string name, string categoryName,
-        uint cost, uint count, bool enable) =>
-        await this.BaseActionGet(() => _productService.UpdateData(name, categoryName, cost, count, enable),
+        uint price, uint quantity, bool enable) =>
+        await this.BaseActionGet(() => _productService.UpdateData(name, categoryName, price, quantity, enable),
             $"The data of product with name '{name}' could not be updated!");
 
     [HttpDelete("{name}")]

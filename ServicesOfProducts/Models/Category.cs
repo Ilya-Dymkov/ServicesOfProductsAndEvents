@@ -17,5 +17,5 @@ public class Category
     [JsonIgnore]
     public Guid Guid { get; set; }
     public string Name { get; set; }
-    public Category? ParentCategory { get; set; }
+    public virtual Category? ParentCategory { get; set; }
 }

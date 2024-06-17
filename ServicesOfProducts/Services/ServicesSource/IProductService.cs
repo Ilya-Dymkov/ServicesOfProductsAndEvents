@@ -9,6 +9,6 @@ public interface IProductService
     Task<IEnumerable<Transaction>> GetTransactions(string productName);
     Task<Product?> Add(string name, string categoryName, uint price, uint quantity, bool enable);
     Task<Product?> UpdateName(string oldName, string newName);
-    Task<Product?> UpdateData(string name, string categoryName, uint cost, uint count, bool enable);
+    Task<Product?> UpdateData(string name, string categoryName, uint price, uint quantity, bool enable);
     Task Delete(string name);
 }

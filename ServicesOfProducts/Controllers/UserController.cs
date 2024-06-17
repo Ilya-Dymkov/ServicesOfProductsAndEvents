@@ -3,7 +3,7 @@ using ServicesOfProducts.Controllers.ControllersSource;
 using ServicesOfProducts.DataContext;
 using ServicesOfProducts.Models;
 using ServicesOfProducts.Models.ModelsSource;
-using ServicesOfProducts.Services;
+using ServicesOfProducts.Proxies;
 using ServicesOfProducts.Services.ServicesSource;
 
 namespace ServicesOfProducts.Controllers;
@@ -12,7 +12,7 @@ namespace ServicesOfProducts.Controllers;
 [ApiController]
 public class UserController(ApplicationDbContext dbContext) : ControllerBase
 {
-    private readonly IUserService _userService = new UserService(dbContext);
+    private readonly IUserService _userService = new UserServiceProxy(dbContext);
     
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetAll() => 

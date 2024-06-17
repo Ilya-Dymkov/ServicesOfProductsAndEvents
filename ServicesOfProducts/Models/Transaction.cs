@@ -18,8 +18,8 @@ public class Transaction
 
     [JsonIgnore]
     public Guid Guid { get; set; }
-    public Order Order { get; set; }
-    public Product Product { get; set; }
+    public virtual Order Order { get; set; }
+    public virtual Product Product { get; set; }
     public uint Price { get; set; }
     public uint Quantity { get; set; }
 }

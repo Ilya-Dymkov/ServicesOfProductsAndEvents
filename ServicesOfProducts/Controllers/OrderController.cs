@@ -3,7 +3,7 @@ using ServicesOfProducts.Controllers.ControllersSource;
 using ServicesOfProducts.DataContext;
 using ServicesOfProducts.Models;
 using ServicesOfProducts.Models.ModelsSource;
-using ServicesOfProducts.Services;
+using ServicesOfProducts.Proxies;
 using ServicesOfProducts.Services.ServicesSource;
 
 namespace ServicesOfProducts.Controllers;
@@ -12,7 +12,7 @@ namespace ServicesOfProducts.Controllers;
 [ApiController]
 public class OrderController(ApplicationDbContext dbContext) : ControllerBase
 {
-    private readonly IOrderService _orderService = new OrderService(dbContext);
+    private readonly IOrderService _orderService = new OrderServiceProxy(dbContext);
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Order>>> GetAll() => 

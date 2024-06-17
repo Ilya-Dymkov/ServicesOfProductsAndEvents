@@ -5,29 +5,11 @@ namespace ServicesOfProducts.DataContext;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        base.OnConfiguring(optionsBuilder);
 
-        modelBuilder.Entity<User>()
-            .Property(u => u.Gender)
-            .HasConversion<string>();
-
-        modelBuilder.Entity<Order>()
-            .Navigation(o => o.User)
-            .AutoInclude();
-        
-        modelBuilder.Entity<Product>()
-            .Navigation(p => p.Category)
-            .AutoInclude();
-
-        modelBuilder.Entity<Transaction>()
-            .Navigation(t => t.Order)
-            .AutoInclude();
-
-        modelBuilder.Entity<Transaction>()
-            .Navigation(t => t.Product)
-            .AutoInclude();
+        optionsBuilder.UseLazyLoadingProxies();
     }
 
     public DbSet<User> Users { get; set; }

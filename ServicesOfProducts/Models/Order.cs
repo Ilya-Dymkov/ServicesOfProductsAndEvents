@@ -18,7 +18,7 @@ public class Order
     [JsonIgnore]
     public Guid Guid { get; set; }
     public uint Number { get; set; }
-    public User User { get; set; }
+    public virtual User User { get; set; }
     public DateTime DateOrder { get; set; }
     public bool IsDeleted { get; set; }
 }

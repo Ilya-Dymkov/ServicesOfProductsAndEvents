@@ -24,9 +24,9 @@ public class UserService(ApplicationDbContext dbContext) : IUserService
             .Where(t => t.Order.User.Login == login)
             .AsEnumerable());
     
-    private string CheckLogin(string login)
+    private async Task<string> CheckLogin(string login)
     {
-        if (dbContext.Users.FirstOrDefaultAsync(u => u.Login == login) != null)
+        if (await dbContext.Users.FirstOrDefaultAsync(u => u.Login == login) != null)
             throw new ArgumentException($"User with {login} login already exists!");
         
         return login;
@@ -34,7 +34,7 @@ public class UserService(ApplicationDbContext dbContext) : IUserService
 
     public async Task<User?> Add(string login, string name, Genders gender, DateTime birthday, bool isAdmin)
     {
-        await dbContext.Users.AddAsync(User.CreateInstance(CheckLogin(login), name, gender, birthday, isAdmin));
+        await dbContext.Users.AddAsync(User.CreateInstance(await CheckLogin(login), name, gender, birthday, isAdmin));
         await dbContext.SaveChangesAsync();
         return await Get(login);
     }
@@ -53,7 +53,7 @@ public class UserService(ApplicationDbContext dbContext) : IUserService
 
     public async Task<User?> UpdateLogin(string oldLogin, string newLogin)
     {
-        await BaseChange(oldLogin, user => user.Login = newLogin);
+        await BaseChange(oldLogin, user => user.Login = CheckLogin(newLogin).Result);
         return await Get(newLogin);
     }
 

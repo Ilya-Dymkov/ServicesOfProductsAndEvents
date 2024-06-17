@@ -19,9 +19,9 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
             .Where(t => t.Order.Number == orderNumber)
             .AsEnumerable());
 
-    private uint CheckNumber(uint number)
+    private async Task<uint> CheckNumber(uint number)
     {
-        if (dbContext.Orders.FirstOrDefaultAsync(o => o.Number == number) != null)
+        if (await dbContext.Orders.FirstOrDefaultAsync(o => o.Number == number) != null)
             throw new ArgumentException($"Order with {number} number already exists!");
         
         return number;
@@ -41,18 +41,18 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
     
     private async Task<Transaction> CreateTransaction(Order order, InputProductInfo productInfo)
     {
-        var product = dbContext.Products.FirstOrDefaultAsync(p => p.Name == productInfo.Name) ??
+        var product = await dbContext.Products.FirstOrDefaultAsync(p => p.Name == productInfo.Name) ??
                       throw new ArgumentException($"There is no product with name '{productInfo.Name}'!");
         
-        return await Task.FromResult(Transaction.CreateInstance(order, await product!,
-            CheckProductQuantity(await product!, productInfo.Quantity), productInfo.Discount));
+        return await Task.FromResult(Transaction.CreateInstance(order, product,
+            CheckProductQuantity(product, productInfo.Quantity), productInfo.Discount));
     }
 
-    private async Task<Order?> BaseAdd(uint number, string userName, Func<Order, Task> addTransaction)
+    private async Task<Order?> BaseAdd(uint number, string userLogin, Func<Order, Task> addTransaction)
     {
-        var order = Order.CreateInstance(CheckNumber(number),
-            await dbContext.Users.FirstOrDefaultAsync(u => u.Name == userName) ??
-            throw new ArgumentException($"There is no user with name '{userName}'!"));
+        var order = Order.CreateInstance(await CheckNumber(number),
+            await dbContext.Users.FirstOrDefaultAsync(u => u.Login == userLogin) ??
+            throw new ArgumentException($"There is no user with login '{userLogin}'!"));
         
         await dbContext.Orders.AddAsync(order);
         await addTransaction(order);
@@ -65,16 +65,16 @@ public class OrderService(ApplicationDbContext dbContext) : IOrderService
         await dbContext.Transactions.AddAsync(
             await CreateTransaction(order, product));
 
-    public async Task<Order?> Add(uint number, string userName, InputProductInfo product) => 
-        await BaseAdd(number, userName, order => AddTransaction(order, product));
+    public async Task<Order?> Add(uint number, string userLogin, InputProductInfo product) => 
+        await BaseAdd(number, userLogin, order => AddTransaction(order, product));
     
     private async Task AddTransactions(Order order, IEnumerable<InputProductInfo> products) =>
         await dbContext.Transactions.AddRangeAsync(
             products.Select(async product => await CreateTransaction(order, product))
                 .Select(t => t.Result));
 
-    public async Task<Order?> AddMany(uint number, string userName, IEnumerable<InputProductInfo> products) => 
-        await BaseAdd(number, userName, order => AddTransactions(order, products));
+    public async Task<Order?> AddMany(uint number, string userLogin, IEnumerable<InputProductInfo> products) => 
+        await BaseAdd(number, userLogin, order => AddTransactions(order, products));
 
     private async Task BaseChange(uint number, Action<Order> actionUpdate)
     {
